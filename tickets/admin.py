@@ -1,3 +1,8 @@
 from django.contrib import admin
-
-# Register your models here.
+from .models import Departament, UserProfile, Attachment, Ticket, Supervision
+ 
+admin.site.register(Departament)
+admin.site.register(UserProfile)
+admin.site.register(Attachment)
+admin.site.register(Ticket)
+admin.site.register(Supervision)

@@ -1,0 +1,21 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>{% block title %}Система заявок{% endblock %}</title>
+        <link rel="stylesheet" type="text/css" href="{% static 'style.css' %}">
+    </head>
+    <body>
+        <div id="top">
+            {% if request.user.is_anonymous %}
+            <a href="login/">Взойти</a>
+            {% else %}
+            <b>You are {{ request.user }}</b> <a href="logout/">Выйти</a>
+            {% endif %}
+        </div>
+        <div id="content">
+            {% block content %}
+            {% endblock %}
+        </div>
+    </body>
+</html>

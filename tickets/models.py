@@ -22,8 +22,15 @@ class Departament(models.Model):
         max_length=200
     )
 
+    def __str__(self):
+        return self.name
+
 class UserProfile(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    user = models.OneToOneField(
+        User,
+        on_delete=models.CASCADE,
+        verbose_name='Логин'
+    )
     is_executor = models.BooleanField(
         verbose_name='Является исполнителем',
         default=False
@@ -45,6 +52,17 @@ class UserProfile(models.Model):
         verbose_name='Подразделение',
         on_delete=models.PROTECT
     )
+    deadline = models.DateField(
+        blank=True,
+        null=True,
+        verbose_name='Срок'
+    )
+
+    def  __str__(self):
+        if (self.first_name or self.last_name):
+            return (f'{self.last_name} {self.first_name}').rstrip()
+        else:
+            return self.user.username
 
 @receiver(post_save, sender=User)
 def create_user_profile(sender, instance, created, **kwargs):
@@ -54,6 +72,9 @@ def create_user_profile(sender, instance, created, **kwargs):
 
 class Attachment(models.Model):
     name = models.CharField(verbose_name='Имя вложения', max_length=100)
+
+    def __str__(self):
+        return self.name
 
 class Ticket(models.Model):
     date_create = models.DateTimeField(
@@ -83,6 +104,12 @@ class Ticket(models.Model):
     )
     attachments = models.ManyToManyField(Attachment)
 
+    def __str__(self):
+        return self.title
+
 class Supervision(models.Model):
     departament = models.OneToOneField(Departament, primary_key=True, on_delete=models.CASCADE)
     supervisors = models.ManyToManyField(UserProfile)
+
+    def __str__(self):
+        return f'Руководители {self.departament.name}'
