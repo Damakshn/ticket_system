@@ -10,7 +10,7 @@
             {% if request.user.is_anonymous %}
             <a href="login/">Взойти</a>
             {% else %}
-            <b>You are {{ request.user }}</b> <a href="logout/">Выйти</a>
+            <b>You are {{ request.user }}</b> <a href="/logout/">Выйти</a>
             {% endif %}
         </div>
         <div id="content">

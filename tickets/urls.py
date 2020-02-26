@@ -7,4 +7,5 @@ urlpatterns = [
     path('index/', views.index, name='index'),
     path('login/', auth_views.LoginView.as_view(), name='login'),
     path('logout/', auth_views.LogoutView.as_view(), name='logout'),
+    path('new_ticket/', views.CreateTicketView.as_view(), name='new_ticket'),
 ]

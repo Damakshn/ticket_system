@@ -52,11 +52,6 @@ class UserProfile(models.Model):
         verbose_name='Подразделение',
         on_delete=models.PROTECT
     )
-    deadline = models.DateField(
-        blank=True,
-        null=True,
-        verbose_name='Срок'
-    )
 
     def  __str__(self):
         if (self.first_name or self.last_name):
@@ -103,6 +98,11 @@ class Ticket(models.Model):
         verbose_name='Статус'
     )
     attachments = models.ManyToManyField(Attachment)
+    deadline = models.DateField(
+        blank=True,
+        null=True,
+        verbose_name='Срок'
+    )
 
     def __str__(self):
         return self.title
