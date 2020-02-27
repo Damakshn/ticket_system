@@ -6,16 +6,26 @@
         <link rel="stylesheet" type="text/css" href="{% static 'style.css' %}">
     </head>
     <body>
-        <div id="top">
-            {% if request.user.is_anonymous %}
-            <a href="login/">Взойти</a>
-            {% else %}
-            <b>You are {{ request.user }}</b> <a href="/logout/">Выйти</a>
-            {% endif %}
-        </div>
-        <div id="content">
+        <header>
+            <div id="system_title">
+                <b>Система заявок</b>
+            </div>
+            <div id="username">
+                {% if request.user.is_anonymous %}
+                <a href="login/">Взойти</a>
+                {% else %}
+                <b>You are {{ request.user }}</b> <a href="/logout/">Выйти</a>
+                {% endif %}
+            </div>
+        </header>
+        <nav>
+            <a href="/inbox/">Входящие</a>
+            <a href="/outbox/">Исходящие</a>
+            <a href="/supervision/">Руководитель</a>
+        </nav>
+        <main>
             {% block content %}
             {% endblock %}
-        </div>
+        </main>
     </body>
 </html>

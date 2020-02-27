@@ -16,9 +16,7 @@ class NewTicketTestCase(unittest.TestCase):
         self.assertEqual(response.url, '/login/?next=/new_ticket/')
 
     def test_current_user_saved_as_creator(self):
-
-        self.client.login(username='TestUser', password='secret')
-        self.assertEqual(1, 1)
+        self.fail()
     
     def test_form_without_title_not_allowed(self):
         form_data = {

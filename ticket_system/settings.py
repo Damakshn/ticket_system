@@ -19,7 +19,7 @@ settings = json.load(open('settings.json', encoding='utf-8'))
 SECRET_KEY = settings['SECRET_KEY']
 DEBUG = bool(int(settings['DEBUG']))
 
-ALLOWED_HOSTS = ['testserver']
+ALLOWED_HOSTS = ['127.0.0.1', 'testserver']
 
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),

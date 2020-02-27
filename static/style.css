@@ -1,5 +1,52 @@
 body{
-    background-color: #CAFAFE;
+    background-color: #ffffff;
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    grid-template-rows: 50px 50px auto;
+    font-family: Arial;
+}
+
+h1{
+    color: #164676;
+}
+
+header{
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    background-color: #164676;
+    color: #ffffff;
+    grid-column-end: span 5;
+}
+
+header a{
+    color: #fae013
+}
+
+#username{
+    text-align: right;
+    padding: 12px 20px 0px 0px;
+}
+
+#system_title{
+    line-height: 50px;
+    padding-left: 15px;
+}
+
+nav{
+    background-color: #3f60a9;
+    grid-column-end: span 5;
+}
+
+nav a {
+    color: white;
+    line-height: 50px;
+    display: inline-block;
+    margin: 0px 10px 0px 10px;
+}
+
+main{
+    font-family: Arial;
+    grid-column-end: span 5;
 }
 
 .alert{color:red}
