@@ -23,7 +23,7 @@ class CreateTicketView(LoginRequiredMixin, CreateView):
         При создании заявки устанавливает текущего пользователя как её создателя.
         """
         new_ticket = form.save(commit=False)
-        new_ticket.creator = self.request.user.userprofile
+        new_ticket.creator = self.request.user
         new_ticket.save()
         return HttpResponseRedirect(self.get_success_url())
 

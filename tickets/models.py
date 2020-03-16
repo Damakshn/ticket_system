@@ -79,13 +79,13 @@ class Ticket(models.Model):
     title = models.CharField(verbose_name='Заголовок', max_length=300)
     description = models.TextField(verbose_name='Описание проблемы')
     creator = models.ForeignKey(
-        UserProfile,
+        User,
         related_name='created_tickets',
         on_delete=models.PROTECT,
         verbose_name='Автор'
     )
     executor = models.ForeignKey(
-        UserProfile,
+        User,
         related_name='tickets_in_work',
         on_delete=models.PROTECT,
         blank=True,
@@ -109,7 +109,7 @@ class Ticket(models.Model):
 
 class Supervision(models.Model):
     departament = models.OneToOneField(Departament, primary_key=True, on_delete=models.CASCADE)
-    supervisors = models.ManyToManyField(UserProfile)
+    supervisors = models.ManyToManyField(User)
 
     def __str__(self):
         return f'Руководители {self.departament.name}'
