@@ -2,6 +2,7 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from django.views.generic.edit import CreateView
 from django.views.generic.list import ListView
+from django.views.generic.detail import DetailView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from . import forms
 from . import models
@@ -30,18 +31,25 @@ class CreateTicketView(LoginRequiredMixin, CreateView):
 
 class TicketList(LoginRequiredMixin, ListView):
     model = models.Ticket
-    context_object_name = 'tickets_list'
 
 
 class InboxTickets(TicketList):
 
     def get_queryset(self):
-        # ToDo только входящие
-        return self.model.objects.all()
+        return self.model.objects.filter(executor=self.request.user)
 
 
 class OutboxTickets(TicketList):
 
     def get_queryset(self):
-        # ToDo только исходящие
-        return self.model.objects.all()
+        return self.model.objects.filter(creator=self.request.user)
+
+
+class DepartamentSupervision(TicketList):
+
+   def get_queryset(self):
+        return self.model.objects.filter(departament__in=self.request.user.supervised_departaments.all())
+
+
+class TicketDetail(DetailView):
+    model = models.Ticket

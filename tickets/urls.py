@@ -10,5 +10,6 @@ urlpatterns = [
     path('new_ticket/', views.CreateTicketView.as_view(), name='new_ticket'),
     path('inbox/', views.InboxTickets.as_view()),
     path('outbox/', views.OutboxTickets.as_view()),
-    path('supervision/', views.index)
+    path('supervision/', views.DepartamentSupervision.as_view()),
+    path('ticket/<int:pk>', views.TicketDetail.as_view(), name='ticket-detail')
 ]

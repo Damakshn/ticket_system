@@ -22,6 +22,9 @@
             <a href="/inbox/">Входящие</a>
             <a href="/outbox/">Исходящие</a>
             <a href="/supervision/">Руководитель</a>
+            {% if request.user.is_staff %}
+            <a href="/admin/">Администрирование</a>
+            {% endif %}
         </nav>
         <main>
             {% block content %}

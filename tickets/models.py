@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from enum import IntEnum
+from django.urls import reverse
 
 
 class TicketStatuses(IntEnum):
@@ -20,6 +21,11 @@ class Departament(models.Model):
     name = models.CharField(
         verbose_name='Название подразделения',
         max_length=200
+    )
+    supervisors = models.ManyToManyField(
+        User,
+        verbose_name='Руководители',
+        related_name='supervised_departaments'
     )
 
     def __str__(self):
@@ -76,6 +82,14 @@ class Ticket(models.Model):
         auto_now_add=True,
         verbose_name='Дата создания'
     )
+    departament = models.ForeignKey(
+        Departament,
+        related_name='incoming_tickets',
+        on_delete=models.PROTECT,
+        verbose_name='Подразделение',
+        blank=True,
+        null=True
+    )
     title = models.CharField(verbose_name='Заголовок', max_length=300)
     description = models.TextField(verbose_name='Описание проблемы')
     creator = models.ForeignKey(
@@ -97,19 +111,15 @@ class Ticket(models.Model):
         default=TicketStatuses.NEW,
         verbose_name='Статус'
     )
-    attachments = models.ManyToManyField(Attachment)
+    attachments = models.ManyToManyField(Attachment, blank=True)
     deadline = models.DateField(
         blank=True,
         null=True,
         verbose_name='Срок'
     )
 
+    def get_absolute_url(self):
+        return reverse('ticket-detail', args=[str(self.id)])
+
     def __str__(self):
         return self.title
-
-class Supervision(models.Model):
-    departament = models.OneToOneField(Departament, primary_key=True, on_delete=models.CASCADE)
-    supervisors = models.ManyToManyField(User)
-
-    def __str__(self):
-        return f'Руководители {self.departament.name}'

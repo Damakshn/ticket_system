@@ -1,6 +1,11 @@
 {% extends "../base.html" %}
 {% block content %}
-    {% for ticket in ticket_list %}
-        <p>ticket.title</p>
-    {% endfor %}
+    {% if ticket_list %}
+        {% for ticket in ticket_list %}
+        <a href="{{  ticket.get_absolute_url }}">{{ ticket.title }}</a>
+        {% endfor %}
+    {% else %}
+        Заявок пока нет
+    {% endif %}
+    
 {% endblock %}
