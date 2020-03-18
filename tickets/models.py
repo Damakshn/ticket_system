@@ -25,7 +25,14 @@ class Departament(models.Model):
     supervisors = models.ManyToManyField(
         User,
         verbose_name='Руководители',
-        related_name='supervised_departaments'
+        related_name='supervised_departaments',
+        blank=True
+    )
+    employees = models.ManyToManyField(
+        User,
+        verbose_name='Сотрудники',
+        related_name='departaments',
+        blank=True
     )
 
     def __str__(self):

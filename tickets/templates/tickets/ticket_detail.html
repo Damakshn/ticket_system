@@ -1,4 +1,24 @@
 {% extends "../base.html" %}
 {% block content %}
-    {{ object.title }}
+    <h1>{{ object.title }}</h1>
+    <span>Статус: {{ object.status }}</span>
+    <p>Создано {{ object.date_create|date:"d.m.Y H:i"}}</p>
+    <h3>Описание</h3>
+    <p>{{ object.description }}</p>
+    {% if can_manage %}
+        <h3>Управление</h3>
+        {% if in_work %}
+            <p>Выполнено</p>
+        {% endif %}
+        {% if can_assign_executor %}
+            <p>Назначить исполнителя</p>
+            {{ executor_assignment_form.as_p }}
+        {% endif %}
+        {% if can_delay %}
+            <p>Отложить заявку</p>
+        {% endif %}
+        {% if can_deny %}
+            <p>Отклонить заявку</p>
+        {% endif %}
+    {% endif %}
 {% endblock %}

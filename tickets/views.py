@@ -51,5 +51,35 @@ class DepartamentSupervision(TicketList):
         return self.model.objects.filter(departament__in=self.request.user.supervised_departaments.all())
 
 
-class TicketDetail(DetailView):
+class TicketDetail(LoginRequiredMixin, DetailView):
     model = models.Ticket
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["can_manage"] = (self.object.departament in self.request.user.supervised_departaments.all())
+
+        available_actions = {
+            "can_assign_executor": (
+                models.TicketStatuses.NEW,
+            ),
+            "can_deny": (
+                models.TicketStatuses.NEW,
+                models.TicketStatuses.IN_WORK,
+                models.TicketStatuses.DELAYED
+            ),
+            "can_delay": (
+                models.TicketStatuses.NEW,
+                models.TicketStatuses.IN_WORK
+            ),
+            "can_refresh": (
+                models.TicketStatuses.DENIED,
+            ),
+            "can_set_done": (
+                models.TicketStatuses.IN_WORK,
+            ),
+        }
+        for action in available_actions:
+            context[action] = self.object.status in available_actions[action]
+        if context["can_manage"]:
+            context["executor_assignment_form"] = forms.ExecutorAssignmentForm(queryset=self.object.departament.employees.all())
+        return context
