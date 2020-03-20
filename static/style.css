@@ -54,3 +54,8 @@ main{
 .form-group{margin: 10px 0;}
 
 .form-group input{width:250px;height: 25px;border-radius:3px;}
+
+.highlight {
+    color: #fae013;
+    font-weight: bold;
+}
