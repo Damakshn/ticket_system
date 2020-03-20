@@ -10,15 +10,37 @@
         {% if in_work %}
             <p>Выполнено</p>
         {% endif %}
-        {% if can_assign_executor %}
-            <p>Назначить исполнителя</p>
-            {{ executor_assignment_form.as_p }}
-        {% endif %}
-        {% if can_delay %}
-            <p>Отложить заявку</p>
-        {% endif %}
-        {% if can_deny %}
-            <p>Отклонить заявку</p>
-        {% endif %}
+        {% with object.id|stringformat:"i" as object_id %}
+            {% if can_assign_executor %}
+                {% with "/ticket/"|add:object_id|add:"/assign" as assign_url %}
+                    {% include "../base_inline_form.html" with form=executor_assignment_form form_action=assign_url button_label="Назначить"%}
+                {% endwith %}
+            {% endif %}
+            {% if can_delay %}
+                {% with "/ticket/"|add:object_id|add:"/delay" as delay_url %}
+                    {% include "../base_inline_form.html" with form_action=delay_url button_label="Отложить"%}
+                {% endwith %}
+            {% endif %}
+            {% if can_refresh %}
+                {% with "/ticket/"|add:object_id|add:"/refresh" as refresh_url %}
+                    {% include "../base_inline_form.html" with form_action=refresh_url button_label="Возобновить"%}
+                {% endwith %}
+            {% endif %}
+            {% if can_deny %}
+                {% with "/ticket/"|add:object_id|add:"/deny" as deny_url %}
+                    {% include "../base_inline_form.html" with form_action=deny_url button_label="Отклонить"%}
+                {% endwith %}
+            {% endif %}
+            {% if can_set_done %}
+                {% with "/ticket/"|add:object_id|add:"/done" as done_url %}
+                    {% include "../base_inline_form.html" with form_action=done_url button_label="Выполнено"%}
+                {% endwith %}
+            {% endif %}
+            {% if can_set_complete %}
+                {% with "/ticket/"|add:object_id|add:"/complete" as complete_url %}
+                    {% include "../base_inline_form.html" with form_action=complete_url button_label="Завершить"%}
+                {% endwith %}
+            {% endif %}
+        {% endwith %}
     {% endif %}
 {% endblock %}
