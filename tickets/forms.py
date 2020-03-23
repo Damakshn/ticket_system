@@ -1,13 +1,29 @@
 from django import forms
-
+from django.contrib.auth.forms import AuthenticationForm
 from . import models
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Fieldset, ButtonHolder, Submit
 
 
-class LoginForm(forms.Form):
-    login = forms.CharField(label="Логин", max_length=20)
+class LoginForm(AuthenticationForm):
+    username = forms.CharField(label="Логин", max_length=20)
     password = forms.CharField(label="Пароль", widget=forms.PasswordInput)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.form_method = "post"
+        self.helper.form_action = self.request.get_full_path()
+        self.helper.layout = Layout(
+            Fieldset(
+                '',
+                'username',
+                'password'
+            ),
+            ButtonHolder(
+                Submit('submit', 'Войти')
+            )
+        )
 
 
 class TicketForm(forms.ModelForm):

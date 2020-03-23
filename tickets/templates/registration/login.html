@@ -3,13 +3,5 @@
 {% block title %}Система заявок - вход{% endblock %}
 {% block content %}
 <h1>Вход в систему</h1>
-{% if next %}
-<form action="/login/?next={{ next }}" method="POST">
-{% else %}
-<form action="/login/" method="POST">
-{% endif %}
-    {% csrf_token %}
-    {{ form|crispy }}
-    <input type="submit" value="Взойти">
-</form>
+{% crispy form %}
 {% endblock %}
