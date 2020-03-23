@@ -5,6 +5,7 @@ from django.views.generic.list import ListView
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import FormView
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.urls import reverse
 from django.views import View
 from . import forms
 from . import models
@@ -86,9 +87,34 @@ class TicketDetail(LoginRequiredMixin, DetailView):
         for action in available_actions:
             context[action] = self.object.status in available_actions[action]
 
-        if context["can_manage"]:
-            if context["can_assign_executor"]:
-                context["executor_assignment_form"] = forms.ExecutorAssignmentForm(queryset=self.object.departament.employees.all())
+        if not context["can_manage"]:
+            return context
+
+        if context["can_assign_executor"]:
+            executor_form = forms.ExecutorAssignmentForm(queryset=self.object.departament.employees.all())
+            executor_form.helper.form_action = reverse("ticket-assign", kwargs={"pk": self.object.id})
+            context["executor_assignment_form"] = executor_form
+        
+        if context["can_delay"]:
+            delay_form = forms.DelayTicketForm()
+            delay_form.helper.form_action = reverse("ticket-delay", kwargs={"pk": self.object.id})
+            context["delay_form"] = delay_form
+        
+        if context["can_deny"]:
+            deny_form = forms.DenyTicketForm()
+            deny_form.helper.form_action = reverse("ticket-deny", kwargs={"pk": self.object.id})
+            context["deny_form"] = deny_form
+        
+        if context["can_refresh"]:
+            refresh_form = forms.RefreshTicketForm()
+            refresh_form.helper.form_action = reverse("ticket-refresh", kwargs={"pk": self.object.id})
+            context["refresh_form"] = refresh_form
+
+        if context["can_set_complete"]:
+            complete_form = forms.CompleteTicketForm()
+            complete_form.helper.form_action = reverse("ticket-set-complete", kwargs={"pk": self.object.id})
+            context["complete_form"] = complete_form
+
         return context
 
 

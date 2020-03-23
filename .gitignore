@@ -3,3 +3,4 @@ __pycache__
 *.log
 .vscode
 next_commit.txt
+static/bootstrap*

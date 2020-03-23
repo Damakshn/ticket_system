@@ -3,6 +3,7 @@
 <html>
     <head>
         <title>{% block title %}Система заявок{% endblock %}</title>
+        <link rel="stylesheet" type="text/css" href="{% static 'bootstrap/css/bootstrap.min.css' %}">
         <link rel="stylesheet" type="text/css" href="{% static 'style.css' %}">
     </head>
     <body>
@@ -29,7 +30,7 @@
                 <a href="/admin/">Администрирование</a>
             {% endif %}
         </nav>
-        <main>
+        <main class="container">
             {% block content %}
             {% endblock %}
         </main>
