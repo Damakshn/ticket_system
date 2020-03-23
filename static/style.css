@@ -59,3 +59,11 @@ main{
     color: #fae013;
     font-weight: bold;
 }
+
+/* 
+    Быстрый костыль для Bootstrap - иначе высота инпута срезается
+    https://github.com/twbs/bootstrap/issues/23307
+*/
+input[type="date"] {
+	min-height: 2.5rem;
+}
