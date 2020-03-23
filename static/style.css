@@ -67,3 +67,11 @@ main{
 input[type="date"] {
 	min-height: 2.5rem;
 }
+
+.ticket_status {font-weight: bold;}
+.ticket_status_new {color: green}
+.ticket_status_delayed {color: darkgrey}
+.ticket_status_denied {color: red}
+.ticket_status_in_work {color: orange}
+.ticket_status_done {color: yellowgreen}
+.ticket_status_complete {color: #3f60a9}

@@ -86,6 +86,13 @@ class Attachment(models.Model):
         return self.name
 
 class Ticket(models.Model):
+    STATUS_NEW = 0
+    STATUS_DELAYED = 1
+    STATUS_DENIED = 2
+    STATUS_IN_WORK = 3
+    STATUS_DONE = 4
+    STATUS_COMPLETE = 5
+
     date_create = models.DateTimeField(
         auto_now_add=True,
         verbose_name="Дата создания"
@@ -114,8 +121,15 @@ class Ticket(models.Model):
         verbose_name="Исполнитель"
     )
     status = models.IntegerField(
-        choices=TicketStatuses.choices(),
-        default=TicketStatuses.NEW,
+        choices=[
+            (STATUS_NEW, "Новая"),
+            (STATUS_DELAYED, "Отложена"),
+            (STATUS_DENIED, "Отклонена"),
+            (STATUS_IN_WORK, "В работе"),
+            (STATUS_DONE, "Выполнена"),
+            (STATUS_COMPLETE,"Завершена"),
+        ],
+        default=STATUS_NEW,
         verbose_name="Статус"
     )
     attachments = models.ManyToManyField(Attachment, blank=True)

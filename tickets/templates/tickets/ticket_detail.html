@@ -2,7 +2,7 @@
 {% load crispy_forms_tags %}
 {% block content %}
     <h1>{{ object.title }}</h1>
-    <span>Статус: {{ object.status }}</span>
+    <span>Статус: </span><span class="ticket_status {{ status_class }}">{{ status_text }}</span>
     <p>Создано {{ object.date_create|date:"d.m.Y H:i"}}</p>
     <h3>Описание</h3>
     <p>{{ object.description }}</p>

@@ -12,6 +12,15 @@ from . import models
 
 COMMON_TEMPLATE_NAME_SUFFIX = "_create_form"
 
+status_classes = {
+    models.Ticket.STATUS_NEW: "ticket_status_new",
+    models.Ticket.STATUS_DELAYED: "ticket_status_delayed",
+    models.Ticket.STATUS_DENIED: "ticket_status_denied",
+    models.Ticket.STATUS_IN_WORK: "ticket_status_in_work",
+    models.Ticket.STATUS_DONE: "ticket_status_done",
+    models.Ticket.STATUS_COMPLETE: "ticket_status_complete",
+}
+
 # Create your views here.
 def index(request):
     return render(request, "index.html")
@@ -57,31 +66,35 @@ class DepartamentSupervision(TicketList):
 class TicketDetail(LoginRequiredMixin, DetailView):
     model = models.Ticket
 
+    
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["can_manage"] = (self.object.departament in self.request.user.supervised_departaments.all())
-
+        status_choices = models.Ticket._meta.get_field("status").choices
+        context["status_text"] = [item for item in status_choices if item[0] == self.object.status][0][1]
+        context["status_class"] = status_classes[self.object.status]
         available_actions = {
             "can_assign_executor": (
-                models.TicketStatuses.NEW,
-                models.TicketStatuses.IN_WORK,
+                models.Ticket.STATUS_NEW,
+                models.Ticket.STATUS_IN_WORK,
             ),
             "can_deny": (
-                models.TicketStatuses.NEW,
-                models.TicketStatuses.IN_WORK,
-                models.TicketStatuses.DELAYED
+                models.Ticket.STATUS_NEW,
+                models.Ticket.STATUS_IN_WORK,
+                models.Ticket.STATUS_DELAYED
             ),
             "can_delay": (
-                models.TicketStatuses.NEW,
-                models.TicketStatuses.IN_WORK
+                models.Ticket.STATUS_NEW,
+                models.Ticket.STATUS_IN_WORK
             ),
             "can_refresh": (
-                models.TicketStatuses.DELAYED,
-                models.TicketStatuses.DENIED,
-                models.TicketStatuses.COMPLETE
+                models.Ticket.STATUS_DELAYED,
+                models.Ticket.STATUS_DENIED,
+                models.Ticket.STATUS_COMPLETE
             ),
             "can_set_complete": (
-                models.TicketStatuses.IN_WORK,
+                models.Ticket.STATUS_IN_WORK,
             ),
         }
         for action in available_actions:
@@ -124,11 +137,12 @@ class TicketManagementView(LoginRequiredMixin, View):
         url = self.request.get_full_path()
         action = url[url.rfind("/"):]
         status_map = {
-            "/refresh": models.TicketStatuses.NEW,
-            "/delay": models.TicketStatuses.DELAYED,
-            "/deny": models.TicketStatuses.DENIED,
-            "/assign": models.TicketStatuses.IN_WORK,
-            "/done": models.TicketStatuses.DONE,
+            "/refresh": models.Ticket.STATUS_NEW,
+            "/delay": models.Ticket.STATUS_DELAYED,
+            "/deny": models.Ticket.STATUS_DENIED,
+            "/assign": models.Ticket.STATUS_IN_WORK,
+            "/done": models.Ticket.STATUS_DONE,
+            "/complete": models.Ticket.STATUS_COMPLETE,
         }
         new_status = status_map.get(action)
         return {"status": new_status}
@@ -164,5 +178,3 @@ class AssignExecutorView(TicketManagementView):
         if form.is_valid():
             updates["executor"] = form.cleaned_data["executor"]
         return updates
-
-
