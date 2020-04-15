@@ -58,6 +58,27 @@ class TicketDetail(LoginRequiredMixin, DetailView):
     model = models.Ticket
     
     def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["can_manage"] = (
+            self.object.departament in self.request.user.supervised_departaments.all()
+        )
+        self._add_css_classes_to_context(context)
+        self._add_russian_labels_to_context(context)
+        if not context["can_manage"]:
+            return context
+        self._add_available_actions_to_context(context)
+        self._add_management_forms_to_context(context)
+        return context
+    
+    def _add_russian_labels_to_context(self, context):
+        # название статуса по-русски
+        status_choices = models.Ticket._meta.get_field("status").choices
+        context["status_text"] = [item for item in status_choices if item[0] == self.object.status][0][1]
+        # приоритет по-русски
+        priority_choices = models.Ticket._meta.get_field("priority").choices
+        context["priority_text"] = [item for item in priority_choices if item[0] == self.object.priority][0][1]
+    
+    def _add_css_classes_to_context(self, context):
         # css-классы для надписи, которая выводит текущий статус заявки на странице
         status_classes = {
             models.Ticket.STATUS_NEW: "ticket_status_new",
@@ -67,22 +88,16 @@ class TicketDetail(LoginRequiredMixin, DetailView):
             models.Ticket.STATUS_DONE: "ticket_status_done",
             models.Ticket.STATUS_COMPLETE: "ticket_status_complete",
         }
-
-        context = super().get_context_data(**kwargs)
-        context["can_manage"] = (
-            self.object.departament in self.request.user.supervised_departaments.all()
-        )
-        status_choices = models.Ticket._meta.get_field("status").choices
-        # название статуса по-русски
-        context["status_text"] = [item for item in status_choices if item[0] == self.object.status][0][1]
+        priority_classes = {
+            models.Ticket.ORDINARY: "ticket_priority_ordinary",
+            models.Ticket.MEDIUM: "ticket_priority_medium",
+            models.Ticket.HIGH: "ticket_priority_high",
+            models.Ticket.URGENT: "ticket_priority_urgent",
+            models.Ticket.CRITICAL: "ticket_priority_critical",
+        }
         context["status_class"] = status_classes[self.object.status]
-
-        if not context["can_manage"]:
-            return context
-        self._add_available_actions_to_context(context)
-        self._add_management_forms_to_context(context)
-
-        return context
+        context["priority_class"] = priority_classes[self.object.priority]
+        #print(priority_classes[self.object.priority])
 
     def _add_available_actions_to_context(self, context):
         """

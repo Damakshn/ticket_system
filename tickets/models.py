@@ -93,6 +93,12 @@ class Ticket(models.Model):
     STATUS_DONE = 4
     STATUS_COMPLETE = 5
 
+    ORDINARY = 100
+    MEDIUM = 200
+    HIGH = 300
+    URGENT = 400
+    CRITICAL = 500
+
     date_create = models.DateTimeField(
         auto_now_add=True,
         verbose_name="Дата создания"
@@ -137,6 +143,18 @@ class Ticket(models.Model):
         blank=True,
         null=True,
         verbose_name="Срок"
+    )
+    priority = models.PositiveIntegerField(
+        choices=[
+            (ORDINARY, "Обычный"),
+            (MEDIUM, "Средний"),
+            (HIGH, "Высокий"),
+            (URGENT, "Срочный"),
+            (CRITICAL, "Критический"),
+        ],
+        blank=True,
+        default=ORDINARY,
+        verbose_name="Приоритет"
     )
 
     def get_absolute_url(self):

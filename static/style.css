@@ -75,3 +75,10 @@ input[type="date"] {
 .ticket_status_in_work {color: orange}
 .ticket_status_done {color: yellowgreen}
 .ticket_status_complete {color: #3f60a9}
+
+.ticket_priority {font-weight: bold;}
+.ticket_priority_ordinary {color: darkgrey}
+.ticket_priority_medium {color: yellowgreen}
+.ticket_priority_high {color: orange}
+.ticket_priority_urgent {color: red}
+.ticket_priority_critical  {color: maroon}

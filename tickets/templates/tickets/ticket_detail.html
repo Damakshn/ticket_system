@@ -6,6 +6,7 @@
     <p>Создано {{ object.date_create|date:"d.m.Y H:i"}}</p>
     <h3>Описание</h3>
     <p>{{ object.description }}</p>
+    <span>Приоритет: </span><span class="ticket_priority {{ priority_class }}">{{ priority_text }}</span>
     {% if can_manage %}
         <h3>Управление</h3>
         {% if can_assign_executor %}
