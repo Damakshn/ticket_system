@@ -1,11 +1,9 @@
-import unittest
-import django.test
 from django.contrib.auth.models import User
+from django.test import TestCase
+from . import forms, models
 
-from . import forms
-from . import models
 
-class NewTicketTestCase(unittest.TestCase):
+class NewTicketTestCase(TestCase):
 
     def setUp(self):
         self.client = django.test.Client()
@@ -17,7 +15,7 @@ class NewTicketTestCase(unittest.TestCase):
 
     def test_current_user_saved_as_creator(self):
         self.fail()
-    
+
     def test_form_without_title_not_allowed(self):
         form_data = {
             "title": "",
@@ -33,9 +31,11 @@ class NewTicketTestCase(unittest.TestCase):
         }
         form = forms.TicketCreateForm(data=form_data)
         self.assertFalse(form.is_valid())
-    
+
     def test_form_sufficient_validation(self):
+        departament = models.Departament.objects.create(name="Отдел 1")
         form_data = {
+            "departament": departament,
             "title": "Just one more ticket",
             "description": "Its enough to write title and description"
         }
