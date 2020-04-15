@@ -1,8 +1,8 @@
 from django import forms
 from django.contrib.auth.forms import AuthenticationForm
-from . import models
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Fieldset, ButtonHolder, Submit
+from . import models
 
 
 class LoginForm(AuthenticationForm):
@@ -16,17 +16,17 @@ class LoginForm(AuthenticationForm):
         self.helper.form_action = self.request.get_full_path()
         self.helper.layout = Layout(
             Fieldset(
-                '',
-                'username',
-                'password'
+                "",
+                "username",
+                "password"
             ),
             ButtonHolder(
-                Submit('submit', 'Войти')
+                Submit("submit", "Войти")
             )
         )
 
 
-class TicketForm(forms.ModelForm):
+class TicketCreateForm(forms.ModelForm):
 
     class Meta:
         model = models.Ticket
@@ -42,14 +42,14 @@ class TicketForm(forms.ModelForm):
         self.helper.form_action = ""
         self.helper.layout = Layout(
             Fieldset(
-                '',
-                'departament',
-                'title',
-                'description',
-                'deadline'
+                "",
+                "departament",
+                "title",
+                "description",
+                "deadline"
             ),
             ButtonHolder(
-                Submit('submit', 'Сохранить')
+                Submit("submit", "Сохранить")
             )
         )
 
@@ -70,26 +70,25 @@ class ExecutorAssignmentForm(forms.Form):
         self.helper.form_method = "post"
         self.helper.form_action = "----calculated dynamically----"
         self.helper.form_class = "form-inline"
-        self.helper.field_template = 'bootstrap4/layout/inline_field.html'
+        self.helper.field_template = "bootstrap4/layout/inline_field.html"
         self.helper.layout = Layout(
             Fieldset(
-                '',
-                'executor'
+                "",
+                "executor"
             ),
             ButtonHolder(
-                Submit('submit', 'Назначить')
+                Submit("submit", "Назначить")
             )
         )
 
 class SimpleInlineForm(forms.Form):
-
     def __init__(self, *args):
         super().__init__(*args)
         self.helper = FormHelper()
         self.helper.form_method = "post"
         self.helper.form_action = "----calculated dynamically----"
         self.helper.form_class = "form-inline"
-        self.helper.field_template = 'bootstrap4/layout/inline_field.html'
+        self.helper.field_template = "bootstrap4/layout/inline_field.html"
 
 
 class DelayTicketForm(SimpleInlineForm):
@@ -98,7 +97,7 @@ class DelayTicketForm(SimpleInlineForm):
         super().__init__(*args)
         self.helper.layout = Layout(
             ButtonHolder(
-                Submit('submit', 'Отложить', css_class="btn btn-secondary")
+                Submit("submit", "Отложить", css_class="btn btn-secondary")
             )
         )
 
@@ -109,7 +108,7 @@ class DenyTicketForm(SimpleInlineForm):
         super().__init__(*args)
         self.helper.layout = Layout(
             ButtonHolder(
-                Submit('submit', 'Отклонить', css_class="btn btn-danger")
+                Submit("submit", "Отклонить", css_class="btn btn-danger")
             )
         )
 
@@ -120,7 +119,7 @@ class RefreshTicketForm(SimpleInlineForm):
         super().__init__(*args)
         self.helper.layout = Layout(
             ButtonHolder(
-                Submit('submit', 'Возобновить', css_class="btn btn-success")
+                Submit("submit", "Возобновить", css_class="btn btn-success")
             )
         )
 
@@ -131,7 +130,7 @@ class SetDoneTicketForm(SimpleInlineForm):
         super().__init__(*args)
         self.helper.layout = Layout(
             ButtonHolder(
-                Submit('submit', 'Готово', css_class="btn btn-success")
+                Submit("submit", "Готово", css_class="btn btn-success")
             )
         )
 
@@ -142,6 +141,6 @@ class CompleteTicketForm(SimpleInlineForm):
         super().__init__(*args)
         self.helper.layout = Layout(
             ButtonHolder(
-                Submit('submit', 'Отложить', css_class="btn btn-success")
+                Submit("submit", "Отложить", css_class="btn btn-success")
             )
         )
