@@ -2,11 +2,15 @@
 {% load crispy_forms_tags %}
 {% block content %}
     <h1>{{ object.title }}</h1>
-    <span>Статус: </span><span class="ticket_status {{ status_class }}">{{ status_text }}</span>
+    <span>Статус: </span><span class="ticket_status {{ object.status_css }}">{{ object.status_text }}</span>
     <p>Создано {{ object.date_create|date:"d.m.Y H:i"}}</p>
+    {% if object.deadline %}
+    <span class="{{object.deadline_css}}">{{ object.verbose_deadline_status }}</span>
+    <br>
+    {% endif %}
     <h3>Описание</h3>
     <p>{{ object.description }}</p>
-    <span>Приоритет: </span><span class="ticket_priority {{ priority_class }}">{{ priority_text }}</span>
+    <span>Приоритет: </span><span class="ticket_priority {{ object.priority_css }}">{{ object.priority_text }}</span>
     {% if can_manage %}
         <h3>Управление</h3>
         {% if can_assign_executor %}

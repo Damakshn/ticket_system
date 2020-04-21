@@ -82,3 +82,9 @@ input[type="date"] {
 .ticket_priority_high {color: orange}
 .ticket_priority_urgent {color: red}
 .ticket_priority_critical  {color: maroon}
+
+
+.ticket_deadline_ok {color: green}
+.ticket_deadline_last_day {color: orange}
+.ticket_deadline_critical {color: red}
+.ticket_deadline_expired {color: maroon}

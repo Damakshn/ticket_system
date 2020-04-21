@@ -1,9 +1,11 @@
+from datetime import datetime
+from enum import IntEnum
 from django.contrib.auth.models import User
 from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from enum import IntEnum
 from django.urls import reverse
+from . import helpers
 
 
 class TicketStatuses(IntEnum):
@@ -156,6 +158,102 @@ class Ticket(models.Model):
         default=ORDINARY,
         verbose_name="Приоритет"
     )
+
+    @property
+    def status_text(self):
+        return [item for item in Ticket.status.field.choices if item[0] == self.status][0][1]
+
+    @property
+    def priority_text(self):
+        return [item for item in Ticket.priority.field.choices if item[0] == self.priority][0][1]
+
+    @property
+    def days_left(self):
+        """
+        Количество дней до истечения срока.
+        Если срок не указан, вернёт None, если заявка просрочена,
+        то вернёт отрицательное число.
+        """
+        if self.deadline is None:
+            return None
+        return (self.deadline - datetime.now().date()).days
+
+    @property
+    def verbose_deadline_status(self):
+        """
+        Возвращает словесное описание статуса заявки по срокам исполнения
+        """
+        if self.days_left is None:
+            return ""
+        if self.days_left > 0:
+            days_between = self.days_left - 1
+            if days_between == 0:
+                return "Остался последний день"
+            # склоняем слова "Осталось" и "дней"
+            days_reminder = days_between % 10
+            left_plural = "Остался" if days_reminder == 1 else "Осталось"
+            days_plural_declension = {
+                (1,): "день",
+                (2, 3, 4,): "дня",
+                (5, 6, 7, 8, 9, 0): "дней"
+            }
+            days_plural = ""
+            for remainders in days_plural_declension:
+                if days_reminder in remainders:
+                    days_plural = days_plural_declension[remainders]
+                    break
+            # ------------------------------------------------------
+            return f"{left_plural} {days_between} {days_plural}"
+        elif self.days_left == 0:
+            return "Крайний срок"
+        else:
+            formatted_deadline = datetime.strftime(self.deadline, helpers.RUSSIAN_DATE_FORMAT)
+            return f"Просрочено с {formatted_deadline}"
+
+    @property
+    def deadline_css(self):
+        """
+        Класс CSS для отображения дедлайна
+        """
+        if self.days_left is None:
+            return ""
+        if  self.days_left > 1:
+            return "ticket_deadline_ok"
+        elif self.days_left == 1:
+            return "ticket_deadline_last_day"
+        elif self.days_left == 0:
+            return "ticket_deadline_critical"
+        else:
+            return "ticket_deadline_expired"
+
+    @property
+    def status_css(self):
+        """
+        Класс CSS для отображения статуса
+        """
+        status_classes = {
+            Ticket.STATUS_NEW: "ticket_status_new",
+            Ticket.STATUS_DELAYED: "ticket_status_delayed",
+            Ticket.STATUS_DENIED: "ticket_status_denied",
+            Ticket.STATUS_IN_WORK: "ticket_status_in_work",
+            Ticket.STATUS_DONE: "ticket_status_done",
+            Ticket.STATUS_COMPLETE: "ticket_status_complete",
+        }
+        return status_classes[self.status]
+
+    @property
+    def priority_css(self):
+        """
+        Класс CSS для отображения приоритета
+        """
+        priority_classes = {
+            Ticket.ORDINARY: "ticket_priority_ordinary",
+            Ticket.MEDIUM: "ticket_priority_medium",
+            Ticket.HIGH: "ticket_priority_high",
+            Ticket.URGENT: "ticket_priority_urgent",
+            Ticket.CRITICAL: "ticket_priority_critical",
+        }
+        return priority_classes[self.priority]
 
     def get_absolute_url(self):
         return reverse("ticket-detail", args=[str(self.id)])
