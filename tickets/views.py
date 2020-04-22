@@ -7,7 +7,7 @@ from django.views.generic.list import ListView
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import FormView
 from django.views import View
-from . import forms, models
+from tickets import forms, models, filters
 
 
 def index(request):
@@ -49,9 +49,17 @@ class OutboxTickets(TicketList):
 
 
 class DepartamentSupervision(TicketList):
+    filterset_class = filters.TicketFilter
 
-   def get_queryset(self):
-        return self.model.objects.filter(departament__in=self.request.user.supervised_departaments.all())
+    def get_queryset(self):
+        queryset = self.model.objects.filter(departament__in=self.request.user.supervised_departaments.all())
+        self.filterset = self.filterset_class(self.request.GET, request=self.request, queryset=queryset)
+        return self.filterset.qs.distinct()
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["filterset"] = self.filterset
+        return context
 
 
 class TicketDetail(LoginRequiredMixin, DetailView):

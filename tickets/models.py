@@ -118,7 +118,7 @@ class Ticket(models.Model):
         User,
         related_name="created_tickets",
         on_delete=models.PROTECT,
-        verbose_name="Автор"
+        verbose_name="От кого"
     )
     executor = models.ForeignKey(
         User,
