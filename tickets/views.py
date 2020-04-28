@@ -34,25 +34,13 @@ class CreateTicketView(LoginRequiredMixin, CreateView):
 
 class TicketList(LoginRequiredMixin, ListView):
     model = models.Ticket
-
-
-class InboxTickets(TicketList):
-
-    def get_queryset(self):
-        return self.model.objects.filter(executor=self.request.user)
-
-
-class OutboxTickets(TicketList):
-
-    def get_queryset(self):
-        return self.model.objects.filter(creator=self.request.user)
-
-
-class DepartamentSupervision(TicketList):
     filterset_class = filters.TicketFilter
 
+    def get_primary_queryset(self):
+        return self.model.objects.all()
+    
     def get_queryset(self):
-        queryset = self.model.objects.filter(departament__in=self.request.user.supervised_departaments.all())
+        queryset = self.get_primary_queryset()
         self.filterset = self.filterset_class(self.request.GET, request=self.request, queryset=queryset)
         return self.filterset.qs.distinct()
     
@@ -60,6 +48,26 @@ class DepartamentSupervision(TicketList):
         context = super().get_context_data(**kwargs)
         context["filterset"] = self.filterset
         return context
+
+
+class InboxTickets(TicketList):
+    filterset_class = filters.ExecutorTicketFilter
+
+    def get_primary_queryset(self):
+        return self.model.objects.filter(executor=self.request.user)
+
+
+class OutboxTickets(TicketList):
+
+    def get_primary_queryset(self):
+        return self.model.objects.filter(creator=self.request.user)
+
+
+class DepartamentSupervision(TicketList):
+    filterset_class = filters.SupervisorTicketFilter
+
+    def get_primary_queryset(self):
+        return self.model.objects.filter(departament__in=self.request.user.supervised_departaments.all())
 
 
 class TicketDetail(LoginRequiredMixin, DetailView):
