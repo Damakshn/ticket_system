@@ -88,3 +88,15 @@ input[type="date"] {
 .ticket_deadline_last_day {color: orange}
 .ticket_deadline_critical {color: red}
 .ticket_deadline_expired {color: maroon}
+
+.filterset_form {margin-bottom: 20px;}
+
+/* ToDo поискать другие картинки */
+td.details-control {
+    background: url('http://www.datatables.net/examples/resources/details_open.png') no-repeat center center;
+    cursor: pointer;
+}
+
+tr.shown td.details-control {
+    background: url('http://www.datatables.net/examples/resources/details_close.png') no-repeat center center;
+}

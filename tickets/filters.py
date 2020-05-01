@@ -16,28 +16,52 @@ def user_supervised_executors(request):
 
 
 class TicketFilter(django_filters.FilterSet):
-    title = django_filters.CharFilter(lookup_expr='icontains')
+    """
+    Стандартный фильтр для списка заявок.
+    Фильтрует по создателю заявки и приоритету.
+    """
     creator = django_filters.ModelChoiceFilter(queryset=models.User.objects.all())
     priority = django_filters.ChoiceFilter(choices= models.Ticket.priority.field.choices)
-    description = django_filters.CharFilter(lookup_expr='icontains')
 
     class Meta:
         model = models.Ticket
-        fields = ["title", "creator", "priority", "description"]
+        fields = ["creator", "priority"]
+
 
 class ExecutorTicketFilter(TicketFilter):
+    """
+    Фильтр заявок для исполнителя.
+    """
     
     class Meta:
         model = models.Ticket
-        fields = ["title", "creator", "priority", "description"]
+        fields = ["creator", "priority"]
+
 
 class SupervisorTicketFilter(TicketFilter):
+    """
+    Фильтр списка заявок для руководителя.
+    По умолчанию показывает следующие заявки: новые, в работе, отложенные, выполненные
+    """
     departament = django_filters.ModelChoiceFilter(queryset=user_departaments)
-    status = django_filters.ChoiceFilter(choices= models.Ticket.status.field.choices)
+    status = django_filters.MultipleChoiceFilter(choices= models.Ticket.status.field.choices)
     executor = django_filters.ModelMultipleChoiceFilter(queryset=user_supervised_executors)
+    
+    def __init__(self, data, *args, **kwargs):
+        if data is not None:
+            data = data.copy()
+            data.setlistdefault(
+                "status",
+                [
+                    models.Ticket.STATUS_NEW,
+                    models.Ticket.STATUS_IN_WORK,
+                    models.Ticket.STATUS_DELAYED,
+                    models.Ticket.STATUS_DONE
+                ]
+            )
+        super().__init__(data, *args, **kwargs)
+    
 
     class Meta:
         model = models.Ticket
-        fields = ["title", "departament", "creator", "status", "priority", "description", "executor"]
-
-
+        fields = ["departament", "creator", "status", "priority", "executor"]
