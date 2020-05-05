@@ -4,9 +4,7 @@
             https://www.datatables.net/plug-ins/sorting/
             https://www.datatables.net/plug-ins/sorting/enum
         Настроить сортировку по дедлайну
-        Поиск ищет не везде
         Раскраска под фирменный стиль
-        Сколько элементов показывать - настроить опции
 -->
 {% extends "../base.html" %}
 {% block css %}
@@ -20,7 +18,7 @@
     </form>
     {% endif %}
     {% if ticket_list %}
-    <table class="table" id="ticket_list">
+    <table class="table cell-border stripe hover" id="ticket_list">
         <thead>
             <th></th>
             <th>Заголовок</th>
@@ -36,7 +34,7 @@
                 <td class="details-control"></td>
                 <td><a href="{{  ticket.get_absolute_url }}">{{ ticket.title }}</a></td>
                 <td>{{ ticket.creator }}</td>
-                <td>{{ ticket.date_create }}</td>
+                <td align="center">{{ ticket.date_create|date:"d.m.y" }}</td>
                 <td class="{{ ticket.priority_css }}">{{ ticket.priority_text }}</td>
                 <td class="{{ ticket.deadline_css }}">{{ ticket.verbose_deadline_status }}</td>
                 <td class="{{ ticket.status_css }}">{{ ticket.status_text }}</td>
@@ -55,16 +53,26 @@
     function format_child_row(value) {
         return '<div><b>Описание проблемы:</b><br> ' + value + '</div>'
     }
-
+   
     $(document).ready(() => {
         var table = $('#ticket_list').DataTable({
+            'columnDefs': [
+                {name: 'Noname', width: '25px', searchable: false, targets: 0},
+                {name: 'title', searchable: true, targets: 1},
+                {name: 'creator', searchable: false, targets: 2},
+                {name: 'dateCreate', searchable: false, targets: 3},
+                {name: 'priority', searchable: false, targets: 4},
+                {name: 'deadline', searchable: false, targets: 5},
+                {name: 'status', searchable: false, targets: 6}
+            ],
+            'lengthMenu': [ [25, 50, 100, -1], [25, 50, 100, 'Все'] ],
             'bInfo' : false,
             'language': {
                 'paginate':{
                     'next': 'Вперёд',
                     'previous': 'Назад'
                 },
-                'sSearch': 'Поиск',
+                'sSearch': 'Поиск по названию',
                 'lengthMenu': 'Показывать _MENU_ записей',
             }
         });
