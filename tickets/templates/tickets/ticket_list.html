@@ -1,11 +1,3 @@
-<!--
-    ToDo
-        Настроить сортировку приоритета не по алфавиту, а по смыслу
-            https://www.datatables.net/plug-ins/sorting/
-            https://www.datatables.net/plug-ins/sorting/enum
-        Настроить сортировку по дедлайну
-        Раскраска под фирменный стиль
--->
 {% extends "../base.html" %}
 {% block css %}
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.20/css/jquery.dataTables.min.css">
@@ -27,6 +19,7 @@
             <th>Приоритет</th>
             <th>Срок</th>
             <th>Статус</th>
+            <th>Осталось</th>
         </thead>
         <tbody>
             {% for ticket in ticket_list %}
@@ -38,6 +31,7 @@
                 <td class="{{ ticket.priority_css }}">{{ ticket.priority_text }}</td>
                 <td class="{{ ticket.deadline_css }}">{{ ticket.verbose_deadline_status }}</td>
                 <td class="{{ ticket.status_css }}">{{ ticket.status_text }}</td>
+                <td>{{ ticket.days_left }}</td>
             </tr>
             {% endfor %}
         </tbody>
@@ -53,6 +47,17 @@
     function format_child_row(value) {
         return '<div><b>Описание проблемы:</b><br> ' + value + '</div>'
     }
+
+    $.fn.dataTable.ext.type.order['priority-pre'] = function ( p ) {
+        switch ( p ) {
+            case 'Обычный':     return 1;
+            case 'Средний':     return 2;
+            case 'Высокий':     return 3;
+            case 'Срочный':     return 4;
+            case 'Критический': return 5;
+        }
+        return 0;
+    };
    
     $(document).ready(() => {
         var table = $('#ticket_list').DataTable({
@@ -61,11 +66,12 @@
                 {name: 'title', searchable: true, targets: 1},
                 {name: 'creator', searchable: false, targets: 2},
                 {name: 'dateCreate', searchable: false, targets: 3},
-                {name: 'priority', searchable: false, targets: 4},
-                {name: 'deadline', searchable: false, targets: 5},
-                {name: 'status', searchable: false, targets: 6}
+                {name: 'priority', type:'priority', searchable: false, targets: 4},
+                {name: 'deadline', orderData: [7], searchable: false, targets: 5},
+                {name: 'status', searchable: false, targets: 6},
+                {name: 'daysLeft', searchable: false, targets: 7, visible: false},
             ],
-            'lengthMenu': [ [25, 50, 100, -1], [25, 50, 100, 'Все'] ],
+            'lengthMenu': [ [1, 50, 100, -1], [1, 50, 100, 'Все'] ],
             'bInfo' : false,
             'language': {
                 'paginate':{
