@@ -70,11 +70,15 @@ class InboxTickets(TicketList):
         return column_list
 
     def get_primary_queryset(self):
-        return self.model.objects.filter(executor=self.request.user)
+        return self.model.objects.filter(
+            executor=self.request.user
+        ).filter(
+            status=models.Ticket.STATUS_IN_WORK
+        )
 
 
 class OutboxTickets(TicketList):
-
+    filterset_class = filters.CreatorTicketFilter
     def get_column_list(self):
         """
         Список колонок в таблице, которые будут видны пользователю.
@@ -214,7 +218,7 @@ class TicketManagementView(LoginRequiredMixin, View):
             "ticket-delay": models.Ticket.STATUS_DELAYED,
             "ticket-deny": models.Ticket.STATUS_DENIED,
             "ticket-assign": models.Ticket.STATUS_IN_WORK,
-            "ticket-done": models.Ticket.STATUS_DONE,
+            "ticket-done": models.Ticket.STATUS_CONTROL,
             "ticket-complete": models.Ticket.STATUS_COMPLETE,
         }
         new_status = status_map.get(url_name)

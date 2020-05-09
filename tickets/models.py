@@ -92,7 +92,7 @@ class Ticket(models.Model):
     STATUS_DELAYED = 1
     STATUS_DENIED = 2
     STATUS_IN_WORK = 3
-    STATUS_DONE = 4
+    STATUS_CONTROL = 4
     STATUS_COMPLETE = 5
 
     ORDINARY = 100
@@ -134,7 +134,7 @@ class Ticket(models.Model):
             (STATUS_DELAYED, "Отложена"),
             (STATUS_DENIED, "Отклонена"),
             (STATUS_IN_WORK, "В работе"),
-            (STATUS_DONE, "Выполнена"),
+            (STATUS_CONTROL, "Контроль"),
             (STATUS_COMPLETE,"Завершена"),
         ],
         default=STATUS_NEW,
@@ -171,9 +171,12 @@ class Ticket(models.Model):
     def days_left(self):
         """
         Количество дней до истечения срока.
+        Если заявка отклонена или выполнена, то дедлайн не имеет значения;
         Если срок не указан, вернёт None, если заявка просрочена,
         то вернёт отрицательное число.
         """
+        if self.status in (Ticket.STATUS_DENIED, Ticket.STATUS_COMPLETE):
+            return None
         if self.deadline is None:
             return None
         return (self.deadline - datetime.now().date()).days
@@ -236,7 +239,7 @@ class Ticket(models.Model):
             Ticket.STATUS_DELAYED: "ticket_status_delayed",
             Ticket.STATUS_DENIED: "ticket_status_denied",
             Ticket.STATUS_IN_WORK: "ticket_status_in_work",
-            Ticket.STATUS_DONE: "ticket_status_done",
+            Ticket.STATUS_CONTROL: "ticket_status_done",
             Ticket.STATUS_COMPLETE: "ticket_status_complete",
         }
         return status_classes[self.status]

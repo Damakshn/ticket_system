@@ -20,22 +20,44 @@ class TicketFilter(django_filters.FilterSet):
     Стандартный фильтр для списка заявок.
     Фильтрует по создателю заявки и приоритету.
     """
-    creator = django_filters.ModelChoiceFilter(queryset=models.User.objects.all())
     priority = django_filters.ChoiceFilter(choices= models.Ticket.priority.field.choices)
 
     class Meta:
         model = models.Ticket
-        fields = ["creator", "priority"]
+        fields = ["priority"]
+
+class CreatorTicketFilter(TicketFilter):
+    """
+    Фильтр заявок для отправителя.
+    """
+    status = django_filters.MultipleChoiceFilter(choices= models.Ticket.status.field.choices)
+
+    class Meta:
+        model = models.Ticket
+        fields = ["priority", "status"]
+    
+    def __init__(self, data, *args, **kwargs):
+        if data is not None:
+            data = data.copy()
+            data.setlistdefault(
+                "status",
+                [
+                    models.Ticket.STATUS_NEW,
+                    models.Ticket.STATUS_IN_WORK,
+                    models.Ticket.STATUS_DELAYED,
+                ]
+            )
+        super().__init__(data, *args, **kwargs)
 
 
 class ExecutorTicketFilter(TicketFilter):
     """
     Фильтр заявок для исполнителя.
     """
-    
+    creator = django_filters.ModelChoiceFilter(queryset=models.User.objects.all())
     class Meta:
         model = models.Ticket
-        fields = ["creator", "priority"]
+        fields = ["priority", "creator"]
 
 
 class SupervisorTicketFilter(TicketFilter):
@@ -45,6 +67,7 @@ class SupervisorTicketFilter(TicketFilter):
     """
     departament = django_filters.ModelChoiceFilter(queryset=user_departaments)
     status = django_filters.MultipleChoiceFilter(choices= models.Ticket.status.field.choices)
+    creator = django_filters.ModelChoiceFilter(queryset=models.User.objects.all())
     executor = django_filters.ModelMultipleChoiceFilter(queryset=user_supervised_executors)
     
     def __init__(self, data, *args, **kwargs):
@@ -56,7 +79,7 @@ class SupervisorTicketFilter(TicketFilter):
                     models.Ticket.STATUS_NEW,
                     models.Ticket.STATUS_IN_WORK,
                     models.Ticket.STATUS_DELAYED,
-                    models.Ticket.STATUS_DONE
+                    models.Ticket.STATUS_CONTROL
                 ]
             )
         super().__init__(data, *args, **kwargs)
@@ -64,4 +87,4 @@ class SupervisorTicketFilter(TicketFilter):
 
     class Meta:
         model = models.Ticket
-        fields = ["departament", "creator", "status", "priority", "executor"]
+        fields = ["departament", "priority", "creator", "status", "executor"]
