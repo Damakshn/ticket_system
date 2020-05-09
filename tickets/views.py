@@ -43,15 +43,31 @@ class TicketList(LoginRequiredMixin, ListView):
         queryset = self.get_primary_queryset()
         self.filterset = self.filterset_class(self.request.GET, request=self.request, queryset=queryset)
         return self.filterset.qs
+    
+    def get_column_list(self):
+        """
+        Список колонок в таблице, которые будут видны пользователю.
+        """
+        return ['title', 'date_create', 'priority', 'deadline', 'days_left']
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["filterset"] = self.filterset
+        context["column_list"] = self.get_column_list()
         return context
 
 
 class InboxTickets(TicketList):
     filterset_class = filters.ExecutorTicketFilter
+
+    def get_column_list(self):
+        """
+        Список колонок в таблице, которые будут видны пользователю.
+        Исполнитель - Заголовок, от кого, дата создания, приоритет, срок
+        """
+        column_list = super().get_column_list()
+        column_list.append('creator')
+        return column_list
 
     def get_primary_queryset(self):
         return self.model.objects.filter(executor=self.request.user)
@@ -59,12 +75,30 @@ class InboxTickets(TicketList):
 
 class OutboxTickets(TicketList):
 
+    def get_column_list(self):
+        """
+        Список колонок в таблице, которые будут видны пользователю.
+        Создатель - Заголовок, дата создания, приоритет, срок, статус
+        """
+        column_list = super().get_column_list()
+        column_list.append('status')
+        return column_list
+
     def get_primary_queryset(self):
         return self.model.objects.filter(creator=self.request.user)
 
 
 class DepartamentSupervision(TicketList):
     filterset_class = filters.SupervisorTicketFilter
+
+    def get_column_list(self):
+        """
+        Список колонок в таблице, которые будут видны пользователю.
+        Руководитель - все
+        """
+        column_list = super().get_column_list()
+        column_list.extend(['creator', 'status', 'executors'])
+        return column_list
 
     def get_primary_queryset(self):
         return self.model.objects.filter(departament__in=self.request.user.supervised_departaments.all())

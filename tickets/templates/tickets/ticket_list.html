@@ -14,26 +14,38 @@
         <thead>
             <th></th>
             <th>Заголовок</th>
+            {% if 'creator' in column_list %}
             <th>От кого</th>
+            {% endif %}
             <th>Дата создания</th>
             <th>Приоритет</th>
             <th>Срок</th>
+            {% if 'status' in column_list %}
             <th>Статус</th>
+            {% endif %}
             <th>Осталось</th>
+            {% if 'executors' in column_list %}
             <th>Исполнители</th>
+            {% endif %}
         </thead>
         <tbody>
             {% for ticket in ticket_list %}
             <tr data-description="{{ ticket.description }}">
                 <td class="details-control"></td>
                 <td><a href="{{  ticket.get_absolute_url }}">{{ ticket.title }}</a></td>
+                {% if 'creator' in column_list %}
                 <td>{{ ticket.creator }}</td>
+                {% endif %}
                 <td align="center">{{ ticket.date_create|date:"d.m.y" }}</td>
                 <td class="{{ ticket.priority_css }}">{{ ticket.priority_text }}</td>
                 <td class="{{ ticket.deadline_css }}">{{ ticket.verbose_deadline_status }}</td>
+                {% if 'status' in column_list %}
                 <td class="{{ ticket.status_css }}">{{ ticket.status_text }}</td>
+                {% endif %}
                 <td>{{ ticket.days_left }}</td>
+                {% if 'executors' in column_list %}
                 <td>{{ ticket.executor|default:"<b>Не заданы</b>" }}</td>
+                {% endif %}
             </tr>
             {% endfor %}
         </tbody>
@@ -49,7 +61,7 @@
     function format_child_row(value) {
         return '<div><b>Описание проблемы:</b><br> ' + value + '</div>'
     }
-
+    
     $.fn.dataTable.ext.type.order['priority-pre'] = function ( p ) {
         switch ( p ) {
             case 'Обычный':     return 1;
@@ -82,19 +94,44 @@
             }
         }
     } );
+
+    var column_list = [
+        'Noname',
+        'title',
+        {% if 'creator' in column_list %}
+        'creator',
+        {% endif %}
+        'dateCreate',
+        'priority',
+        'deadline',
+        {% if 'status' in column_list %}
+        'status',
+        {% endif %}
+        'daysLeft',
+        {% if 'executors' in column_list %}
+        'executors',
+        {% endif %}
+    ];
+    
    
     $(document).ready(() => {
         var table = $('#ticket_list').DataTable({
-            'columnDefs': [
-                {name: 'Noname', width: '25px', searchable: false, targets: 0},
-                {name: 'title', searchable: true, targets: 1},
-                {name: 'creator', searchable: false, targets: 2},
-                {name: 'dateCreate', searchable: false, targets: 3},
-                {name: 'priority', type:'priority', searchable: false, targets: 4},
-                {name: 'deadline', orderData: [7], searchable: false, targets: 5},
-                {name: 'status', searchable: false, targets: 6},
-                {name: 'daysLeft', searchable: false, targets: 7, visible: false},
-                {name: 'executors', type: 'executors', searchable: false, targets: 8},
+            'columns': [
+                {name: 'Noname', width: '25px', searchable: false},
+                {name: 'title', searchable: true, },
+                {% if 'creator' in column_list %}
+                {name: 'creator', searchable: false, },
+                {% endif %}
+                {name: 'dateCreate', searchable: false, },
+                {name: 'priority', type:'priority', searchable: false, },
+                {name: 'deadline', orderData: [column_list.indexOf('daysLeft')], searchable: false, },
+                {% if 'status' in column_list %}
+                {name: 'status', searchable: false},
+                {% endif %}
+                {name: 'daysLeft', searchable: false, visible: false},
+                {% if 'executors' in column_list %}
+                {name: 'executors', type: 'executors', searchable: false, },
+                {% endif %}
             ],
             'lengthMenu': [ [25, 50, 100, -1], [25, 50, 100, 'Все'] ],
             'bInfo' : false,
