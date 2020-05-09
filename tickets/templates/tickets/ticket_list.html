@@ -20,6 +20,7 @@
             <th>Срок</th>
             <th>Статус</th>
             <th>Осталось</th>
+            <th>Исполнители</th>
         </thead>
         <tbody>
             {% for ticket in ticket_list %}
@@ -32,6 +33,7 @@
                 <td class="{{ ticket.deadline_css }}">{{ ticket.verbose_deadline_status }}</td>
                 <td class="{{ ticket.status_css }}">{{ ticket.status_text }}</td>
                 <td>{{ ticket.days_left }}</td>
+                <td>{{ ticket.executor|default:"<b>Не заданы</b>" }}</td>
             </tr>
             {% endfor %}
         </tbody>
@@ -58,6 +60,28 @@
         }
         return 0;
     };
+
+    $.extend( $.fn.dataTable.ext.type.order, {
+        "executors-asc": function (e1, e2) {
+            noE1 = (e1 === 'Не заданы');
+            noE2 = (e2 === 'Не заданы');
+            if (noE1 || noE2) {
+                return ((noE1 && noE2) ? 0 : noE1 ? -1 : 1)
+            } else {
+                return ((e1 < e2) ? -1 : ((e1 > e2) ? 1 : 0));
+            }
+        },
+  
+        "executors-desc": function (e1, e2) {
+            noE1 = (e1 === 'Не заданы');
+            noE2 = (e2 === 'Не заданы');
+            if (noE1 || noE2) {
+                return ((noE1 && noE2) ? 0 : noE1 ? 1 : -1)
+            } else {
+                return ((e1 < e2) ? 1 : ((e1 > e2) ? -1 : 0));
+            }
+        }
+    } );
    
     $(document).ready(() => {
         var table = $('#ticket_list').DataTable({
@@ -70,8 +94,9 @@
                 {name: 'deadline', orderData: [7], searchable: false, targets: 5},
                 {name: 'status', searchable: false, targets: 6},
                 {name: 'daysLeft', searchable: false, targets: 7, visible: false},
+                {name: 'executors', type: 'executors', searchable: false, targets: 8},
             ],
-            'lengthMenu': [ [1, 50, 100, -1], [1, 50, 100, 'Все'] ],
+            'lengthMenu': [ [25, 50, 100, -1], [25, 50, 100, 'Все'] ],
             'bInfo' : false,
             'language': {
                 'paginate':{
