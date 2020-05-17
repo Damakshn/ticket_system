@@ -13,6 +13,57 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "static"),
 ]
 
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "filters": {
+        "require_debug_true": {
+            "()": "django.utils.log.RequireDebugTrue"
+        },
+        "require_debug_false": {
+            "()": "django.utils.log.RequireDebugFalse"
+        }
+    },
+    "formatters": {
+        "standard": {
+            "style": "{",
+            "format": "{asctime} - {name} - {levelname} - {message}"
+        },
+        "error_report": {
+            "style": "{",
+            "format": "{asctime} {message}",
+        }
+    },
+    "handlers": {
+        "console": {
+            "level": "DEBUG",
+            "class": "logging.StreamHandler",
+            "filters": ["require_debug_true"],
+            "formatter": "standard"
+        },
+        "error_file": {
+            "level": "ERROR",
+            "class": "logging.FileHandler",
+            "filename": "err.log",
+            "filters": ["require_debug_false"],
+            "formatter": "error_report"
+        }
+    },
+    "loggers": {
+        "django": {
+            "handlers": ["console"],
+        },
+        "django.request": {
+            "handlers": ["error_file"]
+        },
+        "tickets": {
+            "level": "DEBUG",
+            "handlers": ["console"],
+            "propagate": True
+        }
+    }
+}
+
 
 # Application definition
 
