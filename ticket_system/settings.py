@@ -51,10 +51,7 @@ LOGGING = {
     },
     "loggers": {
         "django": {
-            "handlers": ["console"],
-        },
-        "django.request": {
-            "handlers": ["error_file"]
+            "handlers": ["console", "error_file"],
         },
         "tickets": {
             "level": "DEBUG",
