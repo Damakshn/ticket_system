@@ -76,6 +76,7 @@ input[type="date"] {
 .ticket_status_in_work {color: orange}
 .ticket_status_control {color: red}
 .ticket_status_complete {color: #3f60a9}
+.ticket_status_canceled {color: darkgrey}
 
 .ticket_priority {font-weight: bold;}
 .ticket_priority_ordinary {color: darkgrey}

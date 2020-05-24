@@ -54,7 +54,8 @@ class TicketDetail(LoginRequiredMixin, DetailView):
         context = super().get_context_data(**kwargs)
         actions = logic.get_available_actions_for_ticket(ticket=self.object, current_user=self.request.user)
         forms = logic.get_management_forms_for_ticket(ticket=self.object, actions=actions)
-        context.update(actions)
+        context["actions"] = actions
+        context["has_actions"] = any(actions.values())
         context.update(forms)
         return context
 
@@ -99,7 +100,7 @@ class RefreshTicketView(TicketChangeView):
         # руководителя возвращаем в свой список заявок
         # создателя заявки - в свой
         # если это двое в одном лице - роль руководителя приоритетнее
-        if logic.check_user_can_manage_ticket(self.ticket, self.request.user):
+        if logic.check_user_is_ticket_supervisor(self.ticket, self.request.user):
             return reverse("supervision")
         else:
             return reverse("outbox")
@@ -111,7 +112,7 @@ class RefreshTicketView(TicketChangeView):
 class CancelTicketView(TicketChangeView):
 
     def check_permission(self):
-        if not logic.check_user_can_cancel_ticket:
+        if not logic.check_user_is_ticket_creator(self.ticket, self.request.user):
             raise PermissionDenied("Действие невозможно - вы не являетесь создателем заявки")
 
     def apply_changes(self):
@@ -124,7 +125,7 @@ class CancelTicketView(TicketChangeView):
 class SetTicketDoneView(TicketChangeView):
 
     def check_permission(self):
-        if not logic.check_user_can_set_ticket_done():
+        if not logic.check_user_is_ticket_executor(self.ticket, self.request.user):
             raise PermissionDenied("Действие невозможно - вы не назначены исполнителем заявки")
 
     def apply_changes(self):
@@ -137,7 +138,7 @@ class SetTicketDoneView(TicketChangeView):
 class TicketChangeViewSupervisor(TicketChangeView):
 
     def check_permission(self):
-        if not logic.check_user_can_manage_ticket(self.ticket, self.request.user):
+        if not logic.check_user_is_ticket_supervisor(self.ticket, self.request.user):
             raise PermissionDenied("Действие невозможно - вы не можете управлять этой заявкой")
 
     def calculate_redirect_url(self):

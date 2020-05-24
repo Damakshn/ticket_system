@@ -94,6 +94,7 @@ class Ticket(models.Model):
     STATUS_IN_WORK = 3
     STATUS_CONTROL = 4
     STATUS_COMPLETE = 5
+    STATUS_CANCELED = 6
 
     ORDINARY = 100
     MEDIUM = 200
@@ -135,7 +136,8 @@ class Ticket(models.Model):
             (STATUS_DENIED, "Отклонена"),
             (STATUS_IN_WORK, "В работе"),
             (STATUS_CONTROL, "Контроль"),
-            (STATUS_COMPLETE,"Завершена"),
+            (STATUS_COMPLETE, "Завершена"),
+            (STATUS_CANCELED, "Отменена пользователем"),
         ],
         default=STATUS_NEW,
         verbose_name="Статус"
@@ -220,7 +222,7 @@ class Ticket(models.Model):
         """
         if self.days_left is None:
             return ""
-        if  self.days_left > 1:
+        if self.days_left > 1:
             return "ticket_deadline_ok"
         elif self.days_left == 1:
             return "ticket_deadline_last_day"
@@ -239,8 +241,9 @@ class Ticket(models.Model):
             Ticket.STATUS_DELAYED: "ticket_status_delayed",
             Ticket.STATUS_DENIED: "ticket_status_denied",
             Ticket.STATUS_IN_WORK: "ticket_status_in_work",
-            Ticket.STATUS_CONTROL: "ticket_status_done",
+            Ticket.STATUS_CONTROL: "ticket_status_control",
             Ticket.STATUS_COMPLETE: "ticket_status_complete",
+            Ticket.STATUS_CANCELED: "ticket_status_canceled",
         }
         return status_classes[self.status]
 

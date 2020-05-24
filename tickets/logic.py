@@ -4,7 +4,7 @@ from tickets import filters, forms, models
 # таблица переходов статусов заявки
 # ключ - доступное пользователю действие
 # значение - набор статусов, которые позволяют это действие выполнять
-STATUS_TRANSITION_TABLE = {
+SUPERVISOR_TRANSITION_TABLE = {
     "can_assign_executor": (
         models.Ticket.STATUS_NEW,
         models.Ticket.STATUS_IN_WORK,
@@ -25,7 +25,24 @@ STATUS_TRANSITION_TABLE = {
     ),
     "can_set_complete": (
         models.Ticket.STATUS_IN_WORK,
+        models.Ticket.STATUS_CONTROL,
     ),
+}
+
+CREATOR_TRANSITION_TABLE = {
+    "can_cancel": (
+        models.Ticket.STATUS_NEW,
+        models.Ticket.STATUS_IN_WORK
+    ),
+    "can_refresh": (
+        models.Ticket.STATUS_CANCELED,
+    )
+}
+
+EXECUTOR_TRANSITION_TABLE = {
+    "can_set_done": (
+        models.Ticket.STATUS_IN_WORK,
+    )
 }
 
 
@@ -74,13 +91,18 @@ def get_available_actions_for_ticket(**kwargs):
     current_user = kwargs["current_user"]
     ticket = kwargs["ticket"]
     actions = {}
-    actions["can_manage"] = (
-        ticket.departament in current_user.supervised_departaments.all()
-    )
-    if not actions["can_manage"]:
-        return actions
-    for action in STATUS_TRANSITION_TABLE:
-        actions[action] = ticket.status in STATUS_TRANSITION_TABLE[action]
+    is_creator = check_user_is_ticket_creator(ticket, current_user)
+    is_executor = check_user_is_ticket_executor(ticket, current_user)
+    is_supervisor = check_user_is_ticket_supervisor(ticket, current_user)
+    if is_supervisor:
+        for action in SUPERVISOR_TRANSITION_TABLE:
+            actions[action] = ticket.status in SUPERVISOR_TRANSITION_TABLE[action]
+    if is_creator:
+        for action in CREATOR_TRANSITION_TABLE:
+            actions[action] = actions.get(action) or (ticket.status in CREATOR_TRANSITION_TABLE[action])
+    if is_executor:
+        for action in EXECUTOR_TRANSITION_TABLE:
+            actions[action] = actions.get(action) or (ticket.status in EXECUTOR_TRANSITION_TABLE[action])
     return actions
 
 
@@ -95,7 +117,10 @@ def get_management_forms_for_ticket(**kwargs):
 
     if actions.get("can_assign_executor"):
         # ToDo должен стоять текущий исполнитель, если он есть
-        executor_form = forms.ExecutorAssignmentForm(queryset=ticket.departament.employees.all())
+        executor_form = forms.ExecutorAssignmentForm(
+            initial={"executor": ticket.executor.id},
+            queryset=ticket.departament.employees.all()
+        )
         executor_form.helper.form_action = reverse("ticket-assign", kwargs={"pk": ticket.id})
         management_forms["executor_assignment_form"] = executor_form
 
@@ -119,6 +144,16 @@ def get_management_forms_for_ticket(**kwargs):
         complete_form.helper.form_action = reverse("ticket-complete", kwargs={"pk": ticket.id})
         management_forms["complete_form"] = complete_form
 
+    if actions.get("can_set_done"):
+        done_form = forms.SetTicketDoneForm()
+        done_form.helper.form_action = reverse("ticket-done", kwargs={"pk": ticket.id})
+        management_forms["done_form"] = done_form
+
+    if actions.get("can_cancel"):
+        cancel_form = forms.CancelTicketForm()
+        cancel_form.helper.form_action = reverse("ticket-cancel", kwargs={"pk": ticket.id})
+        management_forms["cancel_form"] = cancel_form
+
     return management_forms
 
 
@@ -128,8 +163,7 @@ def set_ticket_done(ticket):
 
 
 def cancel_ticket(ticket):
-    # ToDo создать ещё один статус - отменено пользователем
-    ticket.status = models.Ticket.STATUS_COMPLETE
+    ticket.status = models.Ticket.STATUS_CANCELED
     ticket.save()
 
 
@@ -159,11 +193,11 @@ def complete_ticket(ticket):
     ticket.save()
 
 
-def check_user_can_cancel_ticket(ticket, current_user):
+def check_user_is_ticket_creator(ticket, current_user):
     return (ticket.creator == current_user)
 
 
-def check_user_can_set_ticket_done(ticket, current_user):
+def check_user_is_ticket_executor(ticket, current_user):
     return (ticket.executor == current_user)
 
 
@@ -174,5 +208,5 @@ def check_user_can_refresh_ticket(ticket, current_user):
     )
 
 
-def check_user_can_manage_ticket(ticket, current_user):
+def check_user_is_ticket_supervisor(ticket, current_user):
     return (ticket.departament in current_user.supervised_departaments.all())
